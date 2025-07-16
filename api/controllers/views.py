@@ -1,24 +1,18 @@
-from django.contrib.auth.models import User
-from rest_framework import generics
-from ..serializers.serializers import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from api.models import User, Producto
+from api.serializers.user_serializer import UserSerializer
+from api.serializers.producto_serializer import ProductoSerializer
 
-class ProtectedView(APIView):
-    permission_classes = [IsAuthenticated]
-
+class UserListView(APIView):
     def get(self, request):
-        return Response({
-            "message": f"Hola, {request.user.username}. Estás autenticado correctamente ✅"
-        })
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+class ProductoListView(APIView):
+    def get(self, request):
+        productos = Producto.objects.all()
+        serializer = ProductoSerializer(productos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
