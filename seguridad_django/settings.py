@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+# Configuración para MySQL/MariaDB (descomentarla cuando actualices MariaDB a 10.5+)
+# import pymysql
+# pymysql.install_as_MySQLdb()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,21 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'drf_yasg',
-    'api',
+    'rest_framework',  # si ya lo tienes instalado
+    # 'core',  # <-- comenta esta línea temporalmente
 ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
-
-LANGUAGE_CODE = 'es-es'
-TIME_ZONE = 'America/Bogota'
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -86,16 +85,33 @@ WSGI_APPLICATION = 'seguridad_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Configuración para desarrollo con SQLite (comentar/descomentar según necesites)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'seguridad_db',
-        'USER': 'root',
-        'PASSWORD': 'TU_PASSWORD',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': 'seguridad_django',   # Nombre de la base de datos que vas a crear en MySQL Workbench
+        'USER': 'root',               # Tu usuario de MySQL (usualmente 'root' por defecto)
+        'PASSWORD': '123456',   # Sustituye esto por tu contraseña real
+        'HOST': '127.0.0.1',          # Dirección del servidor (localhost)
+        'PORT': '3306',               # Puerto por defecto de MySQL
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
+
+
+# Configuración para producción con MySQL/MariaDB (descomentarla cuando actualices MariaDB a 10.5+)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'seguridad_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
@@ -120,9 +136,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
