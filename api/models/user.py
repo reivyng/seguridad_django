@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
+from django.utils import timezone
 from .person import Person
 from .rol import Rol
 
@@ -27,11 +28,41 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
-    
+
+    # Hacer estos campos opcionales temporalmente
+    person = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    rol = models.ForeignKey(
+        Rol,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Agregar related_name para evitar conflictos
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='api_users',
+        related_query_name='api_user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='api_users',
+        related_query_name='api_user',
+    )
 
     objects = UserManager()
 
@@ -44,3 +75,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+    def soft_delete(self):
+        """Marca el usuario como eliminado sin borrarlo de la BD"""
+        self.deleted_at = timezone.now()
+        self.is_active = False
+        self.save()
+
+    def restore(self):
+        """Restaura un usuario eliminado"""
+        self.deleted_at = None
+        self.is_active = True
+        self.save()
+
+    @property
+    def is_deleted(self):
+        """Verifica si el usuario está eliminado"""
+        return self.deleted_at is not None

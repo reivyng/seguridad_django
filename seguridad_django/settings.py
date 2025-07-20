@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-# Configuración para MySQL/MariaDB (descomentarla cuando actualices MariaDB a 10.5+)
+# Configuración para MySQL/MariaDB
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
@@ -24,7 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-igo_*_$d=s2s+x#u=!whln50*b2(+(9a=3z5rv)tr$v!1h%ty&'
+SECRET_KEY = (
+    'django-insecure-igo_*_$d=s2s+x#u=!whln50*b2(+(9a=3z5rv)tr$v!1h%ty&'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,15 +43,49 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',  # si ya lo tienes instalado
-    # 'core',  # <-- comenta esta línea temporalmente
+    'rest_framework',
+    'drf_yasg',  # Agregar esta línea
+    'api',
 ]
 
 
+# Django REST Framework configuration
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+}
+
+# Swagger settings
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+    'SUPPORTED_SUBMIT_METHODS': [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch'
+    ],
+}
+
+REDOC_SETTINGS = {
+    'LAZY_RENDERING': False,
 }
 
 MIDDLEWARE = [
@@ -85,13 +121,15 @@ WSGI_APPLICATION = 'seguridad_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Configuración para desarrollo con SQLite (comentar/descomentar según necesites)
+# Configuración para desarrollo con SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'seguridad_django',   # Nombre de la base de datos que vas a crear en MySQL Workbench
-        'USER': 'root',               # Tu usuario de MySQL (usualmente 'root' por defecto)
-        'PASSWORD': '123456',   # Sustituye esto por tu contraseña real
+        'NAME': 'seguridad_django',
+        # Nombre de la base de datos que vas a crear en MySQL Workbench
+        'USER': 'root',  # Tu usuario de MySQL
+        # (usualmente 'root' por defecto)
+        'PASSWORD': '123456789',   # Sustituye esto por tu contraseña real
         'HOST': '127.0.0.1',          # Dirección del servidor (localhost)
         'PORT': '3306',               # Puerto por defecto de MySQL
         'OPTIONS': {
@@ -101,7 +139,8 @@ DATABASES = {
 }
 
 
-# Configuración para producción con MySQL/MariaDB (descomentarla cuando actualices MariaDB a 10.5+)
+# Configuración para producción con MySQL/MariaDB
+# (descomentarla cuando actualices MariaDB a 10.5+)
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -119,16 +158,28 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'UserAttributeSimilarityValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'MinimumLengthValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'CommonPasswordValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'NumericPasswordValidator'
+        ),
     },
 ]
 
@@ -154,3 +205,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configura tu modelo de usuario personalizado
+AUTH_USER_MODEL = 'api.User'
